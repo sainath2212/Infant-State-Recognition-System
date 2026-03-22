@@ -36,6 +36,8 @@ The data consists of annotated acoustic arrays captured from infants, categorize
 
 We engineered a structured, interpretable pipeline utilizing **first-principles signal processing theory** and **classical Statistical Machine Learning**. Our architecture is completely transparent, allowing us to scientifically audit the transformation of raw sound-waves into high-order geometric decision boundaries.
 
+![Pipeline Architecture](architecture.png)
+
 ### Phase I: Acoustic Preprocessing
 Raw audio is highly unstandardized. We strictly enforce uniform signal geometry using our `preprocessing.py` module:
 - **Spatial Resampling (16 kHz):** Normalizes the Nyquist frequency limit, capturing the primary vocal tract formants without processing unnecessary ultrasonic noise.

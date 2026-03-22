@@ -107,7 +107,7 @@ Infant-State-Recognition-System/
 
 **1. Clone & Install Dependencies:**
 ```bash
-git clone https://github.com/USERNAME/Infant-State-Recognition-System.git
+git clone https://github.com/sainath2212/Infant-State-Recognition-System.git
 cd Infant-State-Recognition-System
 python3 -m venv venv
 source venv/bin/activate

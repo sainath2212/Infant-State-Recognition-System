@@ -40,6 +40,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import (
     train_test_split, GridSearchCV, StratifiedKFold
 )
@@ -102,7 +103,32 @@ def prepare_data(df, test_size=0.2, random_state=42):
         X, y, test_size=test_size, random_state=random_state, stratify=y
     )
 
-    # Scale features — critical for SVM with RBF kernel
+    # Oversample training data to match majority class (Solves 36:1 imbalance)
+    unique_classes, class_counts = np.unique(y_train, return_counts=True)
+    max_count = np.max(class_counts)
+    
+    X_train_resampled = []
+    y_train_resampled = []
+    
+    for cls in unique_classes:
+        indices = np.where(y_train == cls)[0]
+        X_cls = X_train[indices]
+        y_cls = y_train[indices]
+        
+        # Sample with replacement to reach max_count
+        resample_indices = np.random.choice(len(indices), size=max_count, replace=True)
+        X_train_resampled.append(X_cls[resample_indices])
+        y_train_resampled.append(y_cls[resample_indices])
+        
+    X_train = np.vstack(X_train_resampled)
+    y_train = np.hstack(y_train_resampled)
+
+    # Shuffle Resampled Data
+    shuffle_idx = np.random.permutation(len(y_train))
+    X_train = X_train[shuffle_idx]
+    y_train = y_train[shuffle_idx]
+
+    # Scale features — critical for distance based algorithms
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
@@ -116,15 +142,42 @@ def prepare_data(df, test_size=0.2, random_state=42):
 
 def train_svm(X_train, y_train, param_grid=None, cv=5):
     """
-    Train SVM with RBF kernel using GridSearchCV.
+    Train Support Vector Machine securely.
+    """
+    if param_grid is None:
+        param_grid = {
+            'C': [0.1, 1, 10, 100],
+            'gamma': [0.001, 0.01, 0.1, 1],
+            'kernel': ['rbf']
+        }
+
+    svm = SVC(class_weight='balanced', random_state=42)
+
+    grid_search = GridSearchCV(
+        svm, param_grid,
+        cv=StratifiedKFold(n_splits=cv, shuffle=True, random_state=42),
+        scoring='f1_macro',
+        n_jobs=-1,
+        verbose=1,
+        return_train_score=True
+    )
+
+    grid_search.fit(X_train, y_train)
+
+    print(f"\n[SVM] Best Parameters: {grid_search.best_params_}")
+    print(f"[SVM] Best CV F1-score: {grid_search.best_score_:.4f}")
+
+    return grid_search.best_estimator_, grid_search.cv_results_
+
+
+def train_rf(X_train, y_train, param_grid=None, cv=5):
+    """
+    Train Random Forest ensemble using GridSearchCV.
 
     We search over:
-    - C ∈ {0.1, 1, 10, 100}: regularization strength
-      - Small C → wide margin, more misclassifications (high bias)
-      - Large C → narrow margin, fewer misclassifications (high variance)
-    - γ ∈ {0.001, 0.01, 0.1, 1}: kernel bandwidth
-      - Small γ → smooth boundary, looks at distant points (underfitting risk)
-      - Large γ → complex boundary, focuses on nearby points (overfitting risk)
+    - n_estimators: Number of trees in the forest
+    - max_depth: Maximum depth of the tree
+    - min_samples_split: Minimum number of samples required to split an internal node
 
     Stratified K-Fold ensures each fold preserves class distribution.
 
@@ -141,24 +194,22 @@ def train_svm(X_train, y_train, param_grid=None, cv=5):
 
     Returns
     -------
-    best_model : SVC
-        Best SVM model from grid search.
+    best_model : RandomForestClassifier
+        Best RF model from grid search.
     cv_results : dict
         Cross-validation results.
     """
     if param_grid is None:
         param_grid = {
-            'C': [0.1, 1, 10, 100],
-            'gamma': [0.001, 0.01, 0.1, 1],
-            'kernel': ['rbf']
+            'n_estimators': [200, 500],
+            'max_depth': [15, 25, None],
+            'min_samples_split': [2, 5]
         }
 
-    svm = SVC(class_weight='balanced', random_state=42)
+    classifier = RandomForestClassifier(class_weight='balanced_subsample', random_state=42, n_jobs=-1)
 
-    # Use F1-macro as scoring metric because of class imbalance
-    # Macro-average treats all classes equally regardless of size
     grid_search = GridSearchCV(
-        svm, param_grid,
+        classifier, param_grid,
         cv=StratifiedKFold(n_splits=cv, shuffle=True, random_state=42),
         scoring='f1_macro',
         n_jobs=-1,
@@ -168,8 +219,8 @@ def train_svm(X_train, y_train, param_grid=None, cv=5):
 
     grid_search.fit(X_train, y_train)
 
-    print(f"\nBest Parameters: {grid_search.best_params_}")
-    print(f"Best CV F1-score (macro): {grid_search.best_score_:.4f}")
+    print(f"\n[RF] Best Parameters: {grid_search.best_params_}")
+    print(f"[RF] Best CV F1-score: {grid_search.best_score_:.4f}")
 
     return grid_search.best_estimator_, grid_search.cv_results_
 

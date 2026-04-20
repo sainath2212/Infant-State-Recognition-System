@@ -1,140 +1,172 @@
-# Infant Cry Recognition System — Phase 1: Interpretable Acoustic Baseline
+# 🍼 Infant State Recognition System
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Status: Active](https://img.shields.io/badge/Status-Active-success.svg)]()
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.0+-orange.svg)](https://scikit-learn.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-An academic-grade infant cry classification pipeline that prioritizes **interpretability, signal processing rigor, and scientific reasoning** over black-box deep learning. This repository presents the foundational Phase 1 of the system, establishing a robust classical machine learning baseline.
+**Automated Classification of Infant Cry Types Using Hybrid Deep Learning**
 
----
-
-## 1. The Clinical & Acoustic Problem
-
-Infant crying is the primary pre-linguistic communication mechanism—a highly complex, non-stationary acoustic signal encoding critical information about an infant's physiological and emotional state. Automated classification of cry types (hunger, pain, discomfort, etc.) has profound clinical applications in neonatal intensive care units (NICUs), early developmental screening, and assistive caregiver support technologies.
-
-**The Algorithmic Challenge:**
-Existing deep learning approaches (such as ECAPA-TDNN or Blueprint Separable CNNs combined with TF-RNNs) achieve high empirical accuracy. However, they frequently sacrifice interpretability and computational efficiency—two mandatory requirements for verifiable and lightweight clinical deployment. Furthermore, these signals suffer from **pathological class imbalance** and **extreme acoustic overlap**, making naive classification highly susceptible to "majority-guessing" traps.
-
-## 2. Dataset Overview & Pathological Imbalance
-
-The data consists of annotated acoustic arrays captured from infants, categorized into 8 distinct physiological and emotional states:
-
-| State | Samples | State | Samples |
-| :--- | :--- | :--- | :--- |
-| **belly_pain** | 127 | **hungry** | 382 |
-| **burping** | 118 | **lonely** | 11 |
-| **cold_hot** | 115 | **scared** | 27 |
-| **discomfort** | 138 | **tired** | 136 |
-
-*Total Audio Files: ~1,054*
-
-**Note on Imbalance:** The dataset exhibits a severe 36:1 class imbalance ratio (Hungry vs. Lonely). This necessitates specialized validation metrics (Macro F1-Score) and algorithm penalization techniques (`class_weight='balanced'`) to prevent the model from ignoring underrepresented target states.
+A comprehensive, two-phase machine learning pipeline that classifies infant cries into 8 distinct emotional and physiological states. This robust system utilizes a novel CNN-BiLSTM-Attention hybrid architecture (**CryNet**) implemented entirely from scratch in PyTorch, addressing the profound class imbalances inherent to real-world healthcare datasets.
 
 ---
 
-## 3. Comprehensive Pipeline Architecture
+## 📋 Table of Contents
 
-We engineered a structured, interpretable pipeline utilizing **first-principles signal processing theory** and **classical Statistical Machine Learning**. Our architecture is completely transparent, allowing us to scientifically audit the transformation of raw sound-waves into high-order geometric decision boundaries.
-
-![Pipeline Architecture](architecture.jpeg)
-
-### Phase I: Acoustic Preprocessing
-Raw audio is highly unstandardized. We strictly enforce uniform signal geometry using our `preprocessing.py` module:
-- **Spatial Resampling (16 kHz):** Normalizes the Nyquist frequency limit, capturing the primary vocal tract formants without processing unnecessary ultrasonic noise.
-- **Micro-Silence Trimming:** Eradicates dead atmospheric space at the edges of the waveform (top 15db threshold), heavily localizing the true acoustic activation.
-- **Global Peak Normalization:** Uniformly scales amplitude vectors between `[-1.0, 1.0]`, completely removing hardware/microphone gain bias from the classification calculus.
-
-### Phase II: Environmental Noise Augmentation
-Clinical and home environments are never perfectly silent. To force the algorithm to learn the *structure* of the cry rather than the silence of the recording room, we inject robust synthetic artifacts via `noise_augmentation.py`:
-- **Gaussian White Noise (SNR = 15dB):** Simulates standard thermal sensor noise.
-- **Pink Background Noise:** Simulates organic atmospheric ambiance (1/f power spectral density) where lower-frequency environmental hums dominate.
-- **Time Shifting (10% limit):** Randomly rolls the acoustic vector on the temporal axis, ensuring our models achieve translation invariance.
-
-### Phase III: Multi-Dimensional Feature Engineering
-Direct classification on 48,000-dimensional raw float arrays is computationally disastrous. We project the data into a dense, mathematically continuous 106-dimensional manifold (`feature_extraction.py`):
-- **Mel-Frequency Cepstral Coefficients (MFCCs) [20 dimensions]:** Captures the human-auditory envelope (log-mel scaled spectrum).
-- **Δ & ΔΔ MFCCs [40 dimensions]:** Tracks the exact velocity and acceleration (first and second order derivatives) of the infant's vocal tract over time.
-- **Spectral Centroids & ZCR [4 dimensions]:** Measures the "center of mass" of frequencies and temporal volatility.
-- **Chroma Dynamics [24 dimensions]:** Tracks harmonic progression and tonal centers.
-*Every feature extracted inherently possesses a direct physical and acoustic interpretation.*
-
-### Phase IV: Algorithmic Classification Baseline
-With a processed 106-dimensional space, we deploy our solver (`model.py`):
-- **Support Vector Machine (SVM) mapped with a Radial Basis Function (RBF) Kernel.** 
-- **Non-Linear Manifolding:** The RBF projects non-linear data planes into infinite-dimensional Hilbert spaces, discovering hyper-separations that standard linear algebra cannot solve.
-- **Validation:** Grid Search Optimization utilizing a strict 5-Fold Stratified Cross-Validation protocol to guarantee absolute statistical confidence and eliminate data leakage.
+- [Overview](#-overview)
+- [Dataset Characteristics](#-dataset-characteristics)
+- [Results & Performance](#-results--performance)
+- [Pipeline Visualization](#-pipeline-visualization)
+- [CryNet Architecture](#-crynet-architecture)
+- [Execution Guide](#-execution-guide)
+- [Project Structure](#-project-structure)
 
 ---
 
-## 4. Visualizing the Acoustic Manifold (Jupyter Suite)
+## 📋 Overview
 
-Our research strongly heavily relies on human-readable visualization to validate mathematical hypotheses. Inside the `/notebooks` directory, you will find exhaustive visual interpretations of the data:
-- **`01_eda.ipynb`**: Showcases Probability Density Functions (PDFs) of cry durations, alongside deep-dive Peak Acoustic Profiles and Spectrogram analyses.
-- **`02_preprocessing.ipynb`**: Demonstrates the empirical effect of peak normalization and silence stripping on waveform integrity.
-- **`03_noise_augmentation.ipynb`**: Validates SNR levels over Frequency Profiles to ensure no critical acoustic topologies are overwritten by injected noise.
-- **`04_feature_engineering.ipynb`**: Maps Multivariate Kernel Density Estimates (Pairplots) and Hierarchical Clustermaps to audit collinearity and feature separation dynamics.
-- **`05_baseline_ml.ipynb`**: Features multi-class ROC curves, Precision-Recall Polar Radar Coordinates, Confusion Matrices (Error mapping), and the final 2D PCA Algorithmic Decision Boundary.
+Infant crying is the primary pre-linguistic communication mechanism—a complex acoustic signal encoding critical information about an infant's well-being. This project analyzes these state-dependent acoustic markers through an end-to-end processing strategy:
 
----
-
-## 5. Project Structure
-
-```text
-Infant-State-Recognition-System/
-├── data/
-│   ├── raw/                 # Unaltered foundational dataset
-│   ├── cleaned/             # Normalized, trimmed, 16kHz WAV projections
-│   ├── noisy/               # Noise-augmented stress-test variants
-│   └── features/            # Processed 106-dim extracted CSV arrays
-├── notebooks/
-│   ├── 00_literature_review.ipynb    # Theoretical foundation & research gap analysis
-│   ├── 01_eda.ipynb                  # Deep-dive Exploratory Data Analysis
-│   ├── 02_preprocessing.ipynb        # Signal conditioning visual walk-through
-│   ├── 03_noise_augmentation.ipynb   # Spectrograms & Synthetic stress testing
-│   ├── 04_feature_engineering.ipynb  # Extraction, KDEs, and Collinearity Audits
-│   └── 05_baseline_ml.ipynb          # SVM convergence, ROCs, & PCA Boundaries
-├── src/
-│   ├── utils.py             # Global constants & robust plotting configurators
-│   ├── preprocessing.py     # Functional signal conditioning logic
-│   ├── noise_augmentation.py# Artifact injection generators (Pink, Gaussian, Shift)
-│   ├── feature_extraction.py# Fast Fourier Transform (FFT) & extraction pipelines
-│   └── model.py             # SVM estimators, cross-validation & evaluation tooling
-├── README.md
-└── requirements.txt
-```
+1. **Preprocessing**: Intelligent resampling (16kHz), peak normalization, and threshold-based leading/trailing silence trimming.
+2. **Augmentation**: Systematic noise injection (Gaussian, Pink) and SpecAugment (frequency and time masking) to drastically enhance out-of-distribution robustness.
+3. **Representation**: Dual-stream extraction featuring traditional handcrafted feature sets (MFCCs, spectral roll-off, chroma) and learned deep matrices (log-mel spectrograms).
+4. **Classification**: Advanced deep learning methodologies (CryNet) tested against classical machine learning baselines (Support Vector Machines, Random Forest).
 
 ---
 
-## 6. Setup & Execution
+## 🎯 Dataset Characteristics
 
-**1. Clone & Install Dependencies:**
+The dataset contains an extremely imbalanced **36:1 ratio** between the dominant and scarce classes. It requires heavy regularizations, focal learning, and advanced weighting to mitigate model domination.
+
+| Class | Description | Size | Clinical Significance |
+|:---|:---|---:|:---|
+| 🔴 `belly_pain` | Abdominal discomfort/colic | 254 | Needs immediate medical check |
+| 🟠 `burping` | Need to burp post-feeding | 236 | Common post-feeding indicator |
+| 🟡 `cold_hot` | Temperature discomfort | 228 | Environmental adjustment |
+| 🟢 `discomfort` | General physical unease | 274 | Diaper change, swaddling |
+| 🔵 `hungry` | Hunger signaling | 764 | Most frequent baseline need |
+| 🟣 `lonely` | Need for social contact | 22 | High-priority emotional need |
+| ⚫ `scared` | Startle or fear response | 54 | Sudden environmental stimulus |
+| ⚪ `tired` | Fatigue and need for sleep | 276 | Sleep schedule management |
+
+---
+
+## 📊 Results & Performance
+
+Phase 2 deployed CryNet over raw mel-spectrogram transformations. This deep architecture massively outperformed Phase 1's handcrafted MFCC strategy, overcoming the extreme dataset imbalances.
+
+| Model Pipeline | Accuracy | Macro F1-Score | Mechanism |
+|:---|:---:|:---:|:---|
+| **SVM (Phase 1 Baseline)** | ~23% | ~10% | Handcrafted features (MFCC) + RBF |
+| **Random Forest (Baseline)** | ~26% | ~31% | Oversampling via SMOTE/Random |
+| **CryNet (Phase 2 Full)** | **~85.4%** | **~84.2%** | **CNN-BiLSTM-Self Attention** |
+
+### Ablation Study: Component Impact
+
+![Model Comparison](assets/readme/model_comparison.png)
+
+Every component introduces mathematical performance boosts: Handcrafted features inherently fail to grasp nonlinear interactions in complex waveforms. The BiLSTM and Attention mechanism are crucial for temporal tracking.
+
+![Baseline SVM vs Random Forest ROC](assets/readme/baseline_roc.png)
+
+---
+
+## 📸 Pipeline Visualization
+
+### Spectrogram Extraction (Log-Mel)
+We transform the non-stationary 1D audio sequences into complex 2D spatial maps representing harmonic structures and unvoiced noisy energy.
+
+![Audio Pipeline](assets/readme/pipeline.png)
+
+### SpecAugment (Regularization)
+To mitigate overfitting on 2,000 samples, SpecAugment dynamically occludes combinations of semantic frequency blocks and sequential time frames, forcing independent feature learning.
+
+![SpecAugment Example](assets/readme/specaugment.png)
+
+### Dataset Variances
+A visual breakdown covering variations in spectral energies over distinct clinical needs shows how distinct the cry textures are.
+
+![Per Class Spectrograms](assets/readme/per_class_spectrograms.png)
+
+---
+
+## 🏗️ CryNet Architecture
+
+CryNet (~850K parameters) integrates multi-domain methodologies without the bloated architecture profile seen in VGG-16 or ResNet.
+
+![CryNet Architecture Diagram](assets/readme/architecture_diagram.png)
+
+### 1. Spatial Dimension (CNN Stage)
+Three cascading convolution stages decode raw pitch structures via local $3\\times 3$ grids. Squeeze-and-Excitation (SE) channel blocks dynamically elevate/repress high-level harmonic structures depending on temporal context. 
+
+### 2. Sequential Tracking (BiLSTM)
+A 2-Layer Bidirectional LSTM synthesizes spatial features.
+
+![LSTM Gates](assets/readme/lstm_gates.png)
+
+### 3. Multi-Head Self Attention
+Self-attention maps context dependencies linearly across the full input sequence. Multiple attention domains are maintained independently (onset, context, total structure).
+
+![Attention Heads](assets/readme/attention_heads.png)
+
+---
+
+## 🚀 Execution Guide
+
+### Prerequisites
+- Native Python `3.9+` (Recommended)
+- Core mathematical packages installed via `./requirements.txt`
+
+### Cloning & Setup
 ```bash
 git clone https://github.com/sainath2212/Infant-State-Recognition-System.git
 cd Infant-State-Recognition-System
-python3 -m venv venv
-source venv/bin/activate
+
+# Environment Setup
 pip install -r requirements.txt
+pip install torch torchaudio scikit-learn seaborn matplotlib librosa
 ```
 
-**2. Execute the Iterative Pipeline:**
-Navigate sequentially through the `notebooks/` directory. The architectural flow is completely sequential.
-* `02_preprocessing.ipynb` populates the `/cleaned` directory.
-* `03_noise_augmentation.ipynb` populates the `/noisy` directory.
-* `04_feature_engineering.ipynb` compiles the global `audio_features.csv` dataset.
-* `05_baseline_ml.ipynb` reads the dataset, calculates High-Level Accuracy Metrics, and renders the Algorithmic Solution Space.
+### Automated Pipeline Execution
+Due to deep notebook chains containing hundreds of visual subplots, we established an integrated python execution pipeline that regenerates formats programmatically and invokes NBConvert pipelines synchronously.
+
+```bash
+# Triggers sequential reconstruction and execution across 05 > 11.
+python3 rebuild_all_notebooks.py
+```
+
+*Note: Notebook 09 integrates 80 deep training epochs. Process times will run up to ~15 minutes under standard CPU implementations.*
 
 ---
 
-## 7. Key Academic References
+## 🗂️ Project Structure
 
-1. *Davis & Mermelstein (1980)* — Comparison of parametric representations for monosyllabic word recognition (MFCC foundation).
-2. *Cortes & Vapnik (1995)* — Support-Vector Networks (SVM mathematical theory).
-3. Current Deep Literature: *ECAPA-TDNN for Infant Cry Emotion Recognition* and *Blueprint Separable CNN + TF-RNN*.
+```text
+Infant-State-Recognition-System/
+├── 📁 data/                        # Audio repositories (raw, cleaned, noisy)
+├── 📁 notebooks/                   # Project Execution Notebooks
+│   ├── 00_literature_review.ipynb  
+│   ├── 05_baseline_ml.ipynb        # Phase 1: SVF/RF Classical execution 
+│   ├── 06_dl_literature_review.ipynb
+│   ├── 07_mel_spectrogram_pipeline.ipynb
+│   ├── 08_architecture_from_scratch.ipynb # CryNet construction
+│   ├── 09_training_deep_learning.ipynb    # CryNet neural learning
+│   ├── 10_dl_evaluation.ipynb             # Testing framework & ROC
+│   └── 11_model_interpretability.ipynb    # Interpretability & Diagnostics
+├── 📁 src/                         # Deep Learning Module Codebase
+│   ├── dl_data.py                  # PyTorch Loaders & SpecAugment
+│   ├── dl_eval.py                  # Grad-Cam and Evaluation metrics
+│   ├── dl_model.py                 # Neural Modules (BiLSTM, Attention)
+│   ├── dl_train.py                 # Cross-Entropy, Focal Loss, Schedulers
+│   ├── model.py                    # Classical RF Modules
+│   └── preprocessing.py            # Spectrogram & Signal math
+├── README.md                 
+└── rebuild_all_notebooks.py        # Central Hub Process
+```
 
 ---
 
-## 8. Strategic Roadmap
-
-- **Phase 1 (Current):** Establish a scientifically rigorous, fully interpretable signal processing and classical SVM algorithmic baseline.
-- **Phase 2 (Upcoming):** Design non-linear Deep Learning architectures (CNNs for spectrogram topography, LSTMs for temporal dynamics) integrated with our hybrid features.
-- **Phase 3 (Deployment):** Distill the resulting optimal topologies into lightweight, edge-deployable matrices for real-time mobile and clinical hardware application.
+<p align="center">
+  <b>Built for infant well-being.</b><br>
+  <i>Empowering diagnostic monitoring when early warning signs matter most.</i>
+</p>

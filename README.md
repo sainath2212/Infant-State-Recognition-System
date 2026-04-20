@@ -59,7 +59,7 @@ Phase 2 deployed CryNet over raw mel-spectrogram transformations. This deep arch
 |:---|:---:|:---:|:---|
 | **SVM (Phase 1 Baseline)** | ~23% | ~10% | Handcrafted features (MFCC) + RBF |
 | **Random Forest (Baseline)** | ~26% | ~31% | Oversampling via SMOTE/Random |
-| **CryNet (Phase 2 Full)** | **~85.4%** | **~84.2%** | **CNN-BiLSTM-Self Attention** |
+| **CryNet (Phase 2 Full)** | **~25.8%** | **~35.4%** | **CNN-BiLSTM-Self Attention** |
 
 ### Ablation Study: Component Impact
 

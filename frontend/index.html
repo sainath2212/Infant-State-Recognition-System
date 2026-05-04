@@ -61,8 +61,8 @@
             <span class="stat-label">Cry Classes</span>
           </div>
           <div class="stat-card">
-            <span class="stat-value">~850K</span>
-            <span class="stat-label">Parameters</span>
+            <span class="stat-value">3</span>
+            <span class="stat-label">Phases</span>
           </div>
           <div class="stat-card">
             <span class="stat-value">35.4%</span>
@@ -241,7 +241,7 @@
           </div>
           <div class="phase-visual">
             <div class="arch-image-card">
-              <img src="assets/phase1_architecture.jpeg" alt="Phase 1 Architecture — Classical ML Pipeline" loading="lazy" />
+              <img src="assets/phase1_architecture.jpeg" alt="Phase 1 Architecture — Classical ML Pipeline" loading="lazy" style="cursor: pointer;" onclick="document.getElementById('modal-img').src=this.src; document.getElementById('image-modal').classList.add('open');" />
               <span class="arch-caption">Phase 1 — End-to-end classical ML pipeline</span>
             </div>
           </div>
@@ -255,9 +255,9 @@
             <div class="phase-badge phase-badge-2">Phase 2</div>
             <h3 class="phase-title">CryNet — CNN-BiLSTM-Attention</h3>
             <p class="phase-description">
-              The core innovation phase deploys CryNet (~850K parameters), a bespoke deep learning
+              The core innovation phase deploys CryNet, a bespoke deep learning
               architecture built entirely from scratch in PyTorch. It processes log-mel spectrograms
-              through spatial, temporal, and attentive pathways.
+              and DST features through spatial, temporal, and attentive pathways.
             </p>
             <div class="phase-details">
               <div class="detail-block">
@@ -310,7 +310,7 @@
           </div>
           <div class="phase-visual">
             <div class="arch-image-card">
-              <img src="assets/phase2_architecture.png" alt="Phase 2 Architecture — CryNet deep learning model" loading="lazy" />
+              <img src="assets/phase2_architecture.png" alt="Phase 2 Architecture — CryNet deep learning model" loading="lazy" style="cursor: pointer;" onclick="document.getElementById('modal-img').src=this.src; document.getElementById('image-modal').classList.add('open');" />
               <span class="arch-caption">Phase 2 — CryNet CNN-BiLSTM-Attention architecture</span>
             </div>
           </div>
@@ -379,7 +379,7 @@
           </div>
           <div class="phase-visual">
             <div class="arch-image-card">
-              <img src="assets/architecture_diagram.png" alt="CryNet full architecture diagram with all stages" loading="lazy" />
+              <img src="assets/phase3_architecture.png" alt="CryNet full architecture diagram with all stages" loading="lazy" style="cursor: pointer;" onclick="document.getElementById('modal-img').src=this.src; document.getElementById('image-modal').classList.add('open');" />
               <span class="arch-caption">Full CryNet Architecture — 5-stage pipeline</span>
             </div>
           </div>

@@ -23,7 +23,7 @@ ul{list-style:none}
 .navbar.scrolled{background:rgba(10,10,15,.92);box-shadow:0 4px 30px rgba(0,0,0,.3)}
 .nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:64px}
 .nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.25rem}
-.logo-icon{font-size:1.5rem}
+.logo-img{height:40px;width:auto;object-fit:contain}
 .nav-links{display:flex;gap:8px}
 .nav-link{padding:8px 18px;border-radius:8px;font-size:.9rem;font-weight:500;color:var(--text2);transition:all .25s}
 .nav-link:hover,.nav-link.active{color:#fff;background:var(--surface2)}

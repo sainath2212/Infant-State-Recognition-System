@@ -1,4 +1,57 @@
-__pycache__/
-*.pyc
-.ipynb_checkpoints/
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js Build Output
+.next/
+out/
+
+# Production Build
+build/
+
+# Testing
+coverage/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Debugging & Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# MacOS
 .DS_Store
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+tfplan
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env/
+.venv/
+env/
+.pytest_cache/
+
+# Large Model Weights (if any)
+*.pt
+*.pth
+*.joblib

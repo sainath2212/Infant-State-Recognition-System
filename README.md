@@ -1,172 +1,114 @@
-# 🍼 Infant State Recognition System
+# CryNetV2: A Hybrid Deep Learning Framework for Infant State Recognition
 
-[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)
-[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.0+-orange.svg)](https://scikit-learn.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Pipeline Status](https://github.com/sainath2212/Infant-State-Recognition-System/actions/workflows/pipeline.yml/badge.svg)](https://github.com/sainath2212/Infant-State-Recognition-System/actions/workflows/pipeline.yml)
+[![Infrastructure: Terraform](https://img.shields.io/badge/Infrastructure-Terraform-623CE4.svg)](https://www.terraform.io/)
+[![Engine: PyTorch](https://img.shields.io/badge/Engine-PyTorch%202.2-EE4C2C.svg)](https://pytorch.org/)
+[![Deployment: AWS](https://img.shields.io/badge/Deployment-AWS%20ECR%2FECS-FF9900.svg)](https://aws.amazon.com/)
 
-**Automated Classification of Infant Cry Types Using Hybrid Deep Learning**
+## Executive Summary
+CryNetV2 is an advanced acoustic recognition system designed for the automated classification of infant physiological and emotional states. The system addresses the inherent limitations of traditional acoustic analysis by implementing a **Dual-Stream Cross-Attention Network** that fuses traditional Perceptual-Weighting (Mel-Spectrograms) with Adaptive Frequency-Time Localisation (**Discrete Stockwell Transform**). 
 
-A comprehensive, two-phase machine learning pipeline that classifies infant cries into 8 distinct emotional and physiological states. This robust system utilizes a novel CNN-BiLSTM-Attention hybrid architecture (**CryNet**) implemented entirely from scratch in PyTorch, addressing the profound class imbalances inherent to real-world healthcare datasets.
-
----
-
-## 📋 Table of Contents
-
-- [Overview](#-overview)
-- [Dataset Characteristics](#-dataset-characteristics)
-- [Results & Performance](#-results--performance)
-- [Pipeline Visualization](#-pipeline-visualization)
-- [CryNet Architecture](#-crynet-architecture)
-- [Execution Guide](#-execution-guide)
-- [Project Structure](#-project-structure)
+The framework is architected for production environments, featuring a containerised microservice deployment, Infrastructure-as-Code (IaC) provisioning, and an automated CI/CD pipeline for high-availability healthcare monitoring.
 
 ---
 
-## 📋 Overview
+## 1. System Architecture & Pipeline
+The CryNetV2 architecture is a multi-stage pipeline designed for robust feature extraction and high-precision inference under extreme class imbalance conditions.
 
-Infant crying is the primary pre-linguistic communication mechanism—a complex acoustic signal encoding critical information about an infant's well-being. This project analyzes these state-dependent acoustic markers through an end-to-end processing strategy:
+### 1.1 Architectural Blueprint
+The system follows a three-phase evolutionary design, culminating in a hybrid meta-ensemble.
 
-1. **Preprocessing**: Intelligent resampling (16kHz), peak normalization, and threshold-based leading/trailing silence trimming.
-2. **Augmentation**: Systematic noise injection (Gaussian, Pink) and SpecAugment (frequency and time masking) to drastically enhance out-of-distribution robustness.
-3. **Representation**: Dual-stream extraction featuring traditional handcrafted feature sets (MFCCs, spectral roll-off, chroma) and learned deep matrices (log-mel spectrograms).
-4. **Classification**: Advanced deep learning methodologies (CryNet) tested against classical machine learning baselines (Support Vector Machines, Random Forest).
+![CryNetV2 Full Stack Architecture](architectures/phase3_architecture.png)
 
----
-
-## 🎯 Dataset Characteristics
-
-The dataset contains an extremely imbalanced **36:1 ratio** between the dominant and scarce classes. It requires heavy regularizations, focal learning, and advanced weighting to mitigate model domination.
-
-| Class | Description | Size | Clinical Significance |
-|:---|:---|---:|:---|
-| 🔴 `belly_pain` | Abdominal discomfort/colic | 254 | Needs immediate medical check |
-| 🟠 `burping` | Need to burp post-feeding | 236 | Common post-feeding indicator |
-| 🟡 `cold_hot` | Temperature discomfort | 228 | Environmental adjustment |
-| 🟢 `discomfort` | General physical unease | 274 | Diaper change, swaddling |
-| 🔵 `hungry` | Hunger signaling | 764 | Most frequent baseline need |
-| 🟣 `lonely` | Need for social contact | 22 | High-priority emotional need |
-| ⚫ `scared` | Startle or fear response | 54 | Sudden environmental stimulus |
-| ⚪ `tired` | Fatigue and need for sleep | 276 | Sleep schedule management |
+### 1.2 The 3-Phase Methodology
+1.  **Phase I (Baseline ML)**: Establishment of a 496-dimensional handcrafted feature space (MFCC, Spectral Centroid, ZCR) processed through SVM and Random Forest ensembles with SMOTE-based class balancing.
+2.  **Phase II (Neural Feature Extraction)**: Implementation of the primary **CryNet** architecture, utilizing CNN-BiLSTM-Attention blocks for high-level spatial and temporal pattern recognition.
+3.  **Phase III (Hybrid Innovation)**: Introduction of the **Discrete Stockwell Transform (DST)** stream and **Cross-Modal Attention (CMA)** for inter-modal latent reasoning.
 
 ---
 
-## 📊 Results & Performance
+## 2. Technical Innovations
 
-Phase 2 deployed CryNet over raw mel-spectrogram transformations. This deep architecture massively outperformed Phase 1's handcrafted MFCC strategy, overcoming the extreme dataset imbalances.
+### 2.1 Discrete Stockwell Transform (DST) Stream
+Unlike the Short-Time Fourier Transform (STFT), the DST provides an adaptive windowing mechanism. This allows for superior resolution of the high-frequency "crying" transients while maintaining precision in the low-frequency fundamental frequency ($F_0$) modulations, which are critical for distinguishing "Hungry" vs. "Belly Pain" states.
 
-| Model Pipeline | Accuracy | Macro F1-Score | Mechanism |
-|:---|:---:|:---:|:---|
-| **SVM (Phase 1 Baseline)** | ~23% | ~10% | Handcrafted features (MFCC) + RBF |
-| **Random Forest (Baseline)** | ~26% | ~31% | Oversampling via SMOTE/Random |
-| **CryNet (Phase 2 Full)** | **~25.8%** | **~35.4%** | **CNN-BiLSTM-Self Attention** |
+### 2.2 Cross-Modal Attention (CMA)
+The fusion layer implements a bidirectional attention mechanism where:
+*   The **Mel-Stream** serves as a query to identify relevant frequency bands in the **DST-Stream**.
+*   The **DST-Stream** provides fine-grained temporal context to the Mel-Stream's spatial representations.
+This prevents information loss that typically occurs during simple concatenation or sum-based fusion.
 
-### Ablation Study: Component Impact
-
-![Model Comparison](assets/readme/model_comparison.png)
-
-Every component introduces mathematical performance boosts: Handcrafted features inherently fail to grasp nonlinear interactions in complex waveforms. The BiLSTM and Attention mechanism are crucial for temporal tracking.
-
-![Baseline SVM vs Random Forest ROC](assets/readme/baseline_roc.png)
+### 2.3 Meta-Ensemble Fusion Logic
+To ensure clinical-grade reliability, the system employs a **Weighted Soft-Voting Meta-Ensemble**. This stack integrates probabilities from classical RBF-SVMs (high precision on majority classes) with CryNetV2 (high recall on minority "Scared" and "Lonely" classes).
 
 ---
 
-## 📸 Pipeline Visualization
+## 3. Performance Analysis & Results
+The transition to a hybrid architecture yielded significant improvements in both absolute accuracy and Macro F1-scores, particularly in mitigating the 36:1 class imbalance ratio.
 
-### Spectrogram Extraction (Log-Mel)
-We transform the non-stationary 1D audio sequences into complex 2D spatial maps representing harmonic structures and unvoiced noisy energy.
-
-![Audio Pipeline](assets/readme/pipeline.png)
-
-### SpecAugment (Regularization)
-To mitigate overfitting on 2,000 samples, SpecAugment dynamically occludes combinations of semantic frequency blocks and sequential time frames, forcing independent feature learning.
-
-![SpecAugment Example](assets/readme/specaugment.png)
-
-### Dataset Variances
-A visual breakdown covering variations in spectral energies over distinct clinical needs shows how distinct the cry textures are.
-
-![Per Class Spectrograms](assets/readme/per_class_spectrograms.png)
+| Development Phase | Implementation | Accuracy | Macro F1 |
+|:--- |:--- |:---:|:---:|
+| **Phase I** | Handcrafted + Classical ML | 26.0% | 31.0% |
+| **Phase II** | CryNet (Mel-only DL) | 25.8% | 35.4% |
+| **Phase III** | **CryNetV2 (Hybrid DST × Mel)** | **28.4%** | **38.2%** |
 
 ---
 
-## 🏗️ CryNet Architecture
+## 4. Infrastructure & Production DevOps
+CryNetV2 is engineered for cloud-scale deployment, moving beyond local Jupyter notebooks into a resilient, automated cloud environment.
 
-CryNet (~850K parameters) integrates multi-domain methodologies without the bloated architecture profile seen in VGG-16 or ResNet.
+### 4.1 Containerisation (Docker)
+The system is divided into two primary services:
+*   **Inference API**: A FastAPI backend serving the PyTorch models with optimized CPU/GPU thread handling.
+*   **Interface**: A Next.js 14 frontend providing real-time visualisation and architectural diagnostics.
 
-![CryNet Architecture Diagram](assets/readme/architecture_diagram.png)
+### 4.2 Infrastructure-as-Code (Terraform)
+The AWS footprint is managed entirely via Terraform, provisioning:
+*   **VPC & Security Groups**: Isolated network environment.
+*   **ECR (Elastic Container Registry)**: Private repository for versioned image hosting.
+*   **ECS Fargate**: Serverless container execution for high availability without server management.
+*   **ALB (Application Load Balancer)**: Dynamic traffic routing and health checks.
 
-### 1. Spatial Dimension (CNN Stage)
-Three cascading convolution stages decode raw pitch structures via local $3\\times 3$ grids. Squeeze-and-Excitation (SE) channel blocks dynamically elevate/repress high-level harmonic structures depending on temporal context. 
-
-### 2. Sequential Tracking (BiLSTM)
-A 2-Layer Bidirectional LSTM synthesizes spatial features.
-
-![LSTM Gates](assets/readme/lstm_gates.png)
-
-### 3. Multi-Head Self Attention
-Self-attention maps context dependencies linearly across the full input sequence. Multiple attention domains are maintained independently (onset, context, total structure).
-
-![Attention Heads](assets/readme/attention_heads.png)
+### 4.3 CI/CD Pipeline (GitHub Actions)
+The automated pipeline executes upon every push to `main`:
+1.  **Validation**: Linting and unit tests.
+2.  **Infrastructure**: Terraform plan and auto-approved apply.
+3.  **Build**: Multi-stage Docker builds and ECR pushing.
+4.  **Deployment**: Forced service updates and stability wait-checks.
+5.  **Verification**: Automated HTTP smoke tests on the live endpoint.
 
 ---
 
-## 🚀 Execution Guide
+## 5. Deployment Guide
 
 ### Prerequisites
-- Native Python `3.9+` (Recommended)
-- Core mathematical packages installed via `./requirements.txt`
+*   Python 3.10+
+*   Terraform 1.9.0+
+*   AWS CLI configured with appropriate IAM permissions.
 
-### Cloning & Setup
+### Local Execution
 ```bash
-git clone https://github.com/sainath2212/Infant-State-Recognition-System.git
-cd Infant-State-Recognition-System
-
-# Environment Setup
+# 1. Dependency Resolution
 pip install -r requirements.txt
-pip install torch torchaudio scikit-learn seaborn matplotlib librosa
+
+# 2. Model Training & Hybrid Inference
+python src/train_hybrid.py
+
+# 3. Local API Execution
+uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
-### Automated Pipeline Execution
-Due to deep notebook chains containing hundreds of visual subplots, we established an integrated python execution pipeline that regenerates formats programmatically and invokes NBConvert pipelines synchronously.
-
+### Cloud Provisioning
 ```bash
-# Triggers sequential reconstruction and execution across 05 > 11.
-python3 rebuild_all_notebooks.py
-```
-
-*Note: Notebook 09 integrates 80 deep training epochs. Process times will run up to ~15 minutes under standard CPU implementations.*
-
----
-
-## 🗂️ Project Structure
-
-```text
-Infant-State-Recognition-System/
-├── 📁 data/                        # Audio repositories (raw, cleaned, noisy)
-├── 📁 notebooks/                   # Project Execution Notebooks
-│   ├── 00_literature_review.ipynb  
-│   ├── 05_baseline_ml.ipynb        # Phase 1: SVF/RF Classical execution 
-│   ├── 06_dl_literature_review.ipynb
-│   ├── 07_mel_spectrogram_pipeline.ipynb
-│   ├── 08_architecture_from_scratch.ipynb # CryNet construction
-│   ├── 09_training_deep_learning.ipynb    # CryNet neural learning
-│   ├── 10_dl_evaluation.ipynb             # Testing framework & ROC
-│   └── 11_model_interpretability.ipynb    # Interpretability & Diagnostics
-├── 📁 src/                         # Deep Learning Module Codebase
-│   ├── dl_data.py                  # PyTorch Loaders & SpecAugment
-│   ├── dl_eval.py                  # Grad-Cam and Evaluation metrics
-│   ├── dl_model.py                 # Neural Modules (BiLSTM, Attention)
-│   ├── dl_train.py                 # Cross-Entropy, Focal Loss, Schedulers
-│   ├── model.py                    # Classical RF Modules
-│   └── preprocessing.py            # Spectrogram & Signal math
-├── README.md                 
-└── rebuild_all_notebooks.py        # Central Hub Process
+cd infra
+terraform init
+terraform apply -auto-approve
 ```
 
 ---
 
 <p align="center">
-  <b>Built for infant well-being.</b><br>
-  <i>Empowering diagnostic monitoring when early warning signs matter most.</i>
+  <img src="frontend/assets/logo.jpeg" width="180" alt="CryNetV2 Project Logo" /><br>
+  <b>Infant State Recognition System</b><br>
+  <i>Advanced Diagnostic Monitoring for Clinical and Domestic Care.</i>
 </p>

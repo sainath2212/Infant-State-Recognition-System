@@ -13,11 +13,11 @@ resource "aws_s3_bucket_versioning" "static" {
   }
 }
 
-resource "aws_s3_bucket_backend_side_encryption_configuration" "static" {
+resource "aws_s3_bucket_server_side_encryption_configuration" "static" {
   bucket = aws_s3_bucket.static.id
 
   rule {
-    apply_backend_side_encryption_by_default {
+    apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
     }
     bucket_key_enabled = true

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CryNet — Infant State Recognition System</title>
+  <meta name="description" content="Automated classification of infant cry types using a hybrid CNN-BiLSTM-Attention deep learning architecture (CryNet). A comprehensive 3-phase machine learning pipeline for healthcare." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===================== NAVBAR ===================== -->
+  <nav id="navbar" class="navbar">
+    <div class="nav-inner">
+      <a href="#hero" class="nav-logo">
+        <span class="logo-icon">🍼</span>
+        <span class="logo-text">CryNet</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#hero" class="nav-link active">Home</a></li>
+        <li><a href="#architecture" class="nav-link">Architecture</a></li>
+        <li><a href="#future" class="nav-link">Future Scope</a></li>
+      </ul>
+      <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <ul id="mobile-menu" class="mobile-menu">
+      <li><a href="#hero" class="nav-link active">Home</a></li>
+      <li><a href="#architecture" class="nav-link">Architecture</a></li>
+      <li><a href="#future" class="nav-link">Future Scope</a></li>
+    </ul>
+  </nav>
+
+  <!-- ===================== HERO ===================== -->
+  <section id="hero" class="hero">
+    <div class="hero-bg-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-text">
+        <p class="hero-tag fade-up">🔬 Deep Learning for Infant Healthcare</p>
+        <h1 class="hero-title fade-up delay-1">
+          Infant State<br />
+          <span class="gradient-text">Recognition System</span>
+        </h1>
+        <p class="hero-desc fade-up delay-2">
+          A comprehensive, two-phase machine learning pipeline that classifies infant cries into
+          <strong>8 distinct emotional &amp; physiological states</strong> using a novel
+          <strong>CNN-BiLSTM-Attention</strong> hybrid architecture — <em>CryNet</em> — built
+          entirely from scratch in PyTorch.
+        </p>
+        <div class="hero-stats fade-up delay-3">
+          <div class="stat-card">
+            <span class="stat-value">8</span>
+            <span class="stat-label">Cry Classes</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">~850K</span>
+            <span class="stat-label">Parameters</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">35.4%</span>
+            <span class="stat-label">Macro F1</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">36:1</span>
+            <span class="stat-label">Imbalance Ratio</span>
+          </div>
+        </div>
+        <div class="hero-cta fade-up delay-4">
+          <a href="#architecture" class="btn btn-primary">Explore Architecture</a>
+          <a href="https://github.com/sainath2212/Infant-State-Recognition-System" target="_blank" rel="noopener" class="btn btn-outline">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+            GitHub
+          </a>
+        </div>
+      </div>
+      <div class="hero-visual fade-up delay-2">
+        <div class="hero-image-wrapper">
+          <img src="assets/hero.png" alt="AI-powered infant cry analysis illustration" class="hero-image" />
+          <div class="hero-image-glow"></div>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-indicator fade-up delay-4">
+      <span>Scroll to explore</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- ===================== DATASET OVERVIEW ===================== -->
+  <section id="dataset" class="section dataset-section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">📊 Dataset</span>
+        <h2 class="section-title">8 Infant Cry <span class="gradient-text">Classifications</span></h2>
+        <p class="section-subtitle">The dataset contains an extremely imbalanced 36:1 ratio between dominant and scarce classes, requiring heavy regularisation and focal learning.</p>
+      </div>
+      <div class="cry-classes-grid reveal">
+        <div class="cry-card" style="--accent: #ef4444">
+          <div class="cry-icon">🔴</div>
+          <h3>Belly Pain</h3>
+          <p class="cry-count">254 samples</p>
+          <p class="cry-desc">Abdominal discomfort / colic — needs immediate medical check</p>
+        </div>
+        <div class="cry-card" style="--accent: #f97316">
+          <div class="cry-icon">🟠</div>
+          <h3>Burping</h3>
+          <p class="cry-count">236 samples</p>
+          <p class="cry-desc">Need to burp post-feeding — common post-feeding indicator</p>
+        </div>
+        <div class="cry-card" style="--accent: #eab308">
+          <div class="cry-icon">🟡</div>
+          <h3>Cold / Hot</h3>
+          <p class="cry-count">228 samples</p>
+          <p class="cry-desc">Temperature discomfort — environmental adjustment needed</p>
+        </div>
+        <div class="cry-card" style="--accent: #22c55e">
+          <div class="cry-icon">🟢</div>
+          <h3>Discomfort</h3>
+          <p class="cry-count">274 samples</p>
+          <p class="cry-desc">General physical unease — diaper change, swaddling</p>
+        </div>
+        <div class="cry-card" style="--accent: #3b82f6">
+          <div class="cry-icon">🔵</div>
+          <h3>Hungry</h3>
+          <p class="cry-count">764 samples</p>
+          <p class="cry-desc">Hunger signaling — most frequent baseline need</p>
+        </div>
+        <div class="cry-card" style="--accent: #a855f7">
+          <div class="cry-icon">🟣</div>
+          <h3>Lonely</h3>
+          <p class="cry-count">22 samples</p>
+          <p class="cry-desc">Need for social contact — high-priority emotional need</p>
+        </div>
+        <div class="cry-card" style="--accent: #6b7280">
+          <div class="cry-icon">⚫</div>
+          <h3>Scared</h3>
+          <p class="cry-count">54 samples</p>
+          <p class="cry-desc">Startle or fear response — sudden environmental stimulus</p>
+        </div>
+        <div class="cry-card" style="--accent: #e2e8f0">
+          <div class="cry-icon">⚪</div>
+          <h3>Tired</h3>
+          <p class="cry-count">276 samples</p>
+          <p class="cry-desc">Fatigue and need for sleep — sleep schedule management</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ARCHITECTURE OVERVIEW ===================== -->
+  <section id="architecture" class="section architecture-section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">🏗️ Architecture</span>
+        <h2 class="section-title">Three-Phase <span class="gradient-text">Pipeline</span></h2>
+        <p class="section-subtitle">A progressive journey from classical baselines to a state-of-the-art hybrid deep learning system.</p>
+      </div>
+
+      <!-- Phase Timeline -->
+      <div class="phase-timeline reveal">
+        <button class="phase-tab active" data-phase="1">
+          <span class="phase-num">01</span>
+          <span class="phase-label">Baseline ML</span>
+        </button>
+        <div class="timeline-connector"></div>
+        <button class="phase-tab" data-phase="2">
+          <span class="phase-num">02</span>
+          <span class="phase-label">CryNet Deep Learning</span>
+        </button>
+        <div class="timeline-connector"></div>
+        <button class="phase-tab" data-phase="3">
+          <span class="phase-num">03</span>
+          <span class="phase-label">Hybrid Fusion</span>
+        </button>
+      </div>
+
+      <!-- Phase 1 -->
+      <div id="phase-1" class="phase-panel active">
+        <div class="phase-content">
+          <div class="phase-info">
+            <div class="phase-badge">Phase 1</div>
+            <h3 class="phase-title">Classical Machine Learning Baselines</h3>
+            <p class="phase-description">
+              The foundation phase establishes performance baselines using traditional ML classifiers on
+              handcrafted audio features. The pipeline processes raw infant audio through preprocessing,
+              augmentation, and a 106-dimensional feature extraction stage.
+            </p>
+            <div class="phase-details">
+              <div class="detail-block">
+                <h4>🎵 Audio Preprocessing</h4>
+                <ul>
+                  <li>Spatial resampling to 16 kHz mono</li>
+                  <li>Peak normalization (amplitude −1.0 to +1.0)</li>
+                  <li>Energy-based silence trimming (25 dB threshold)</li>
+                </ul>
+              </div>
+              <div class="detail-block">
+                <h4>🔊 Noise Augmentation</h4>
+                <ul>
+                  <li>Gaussian hiss injection (SNR ≈ 20 dB)</li>
+                  <li>Pink 1/f background noise (SNR ≈ 15 dB)</li>
+                  <li>Temporal shift (max 10%)</li>
+                </ul>
+              </div>
+              <div class="detail-block">
+                <h4>📐 Feature Engineering</h4>
+                <ul>
+                  <li>MFCCs + Δ + ΔΔ (78 dimensions)</li>
+                  <li>Chroma pitch profiles (24 dimensions)</li>
+                  <li>Spectral centroid (2 dims) + ZCR (2 dims)</li>
+                  <li>Total: 106-dimensional feature manifold</li>
+                </ul>
+              </div>
+              <div class="detail-block">
+                <h4>🤖 Classifiers</h4>
+                <ul>
+                  <li>SVM with RBF kernel + GridSearchCV</li>
+                  <li>Random Forest with SMOTE oversampling</li>
+                  <li>Balanced class weights throughout</li>
+                </ul>
+              </div>
+            </div>
+            <div class="phase-results">
+              <div class="result-chip">
+                <span class="result-label">SVM Accuracy</span>
+                <span class="result-value">~23%</span>
+              </div>
+              <div class="result-chip">
+                <span class="result-label">RF Macro F1</span>
+                <span class="result-value">~31%</span>
+              </div>
+            </div>
+          </div>
+          <div class="phase-visual">
+            <div class="arch-image-card">
+              <img src="assets/phase1_architecture.jpeg" alt="Phase 1 Architecture — Classical ML Pipeline" loading="lazy" />
+              <span class="arch-caption">Phase 1 — End-to-end classical ML pipeline</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 2 -->
+      <div id="phase-2" class="phase-panel">
+        <div class="phase-content">
+          <div class="phase-info">
+            <div class="phase-badge phase-badge-2">Phase 2</div>
+            <h3 class="phase-title">CryNet — CNN-BiLSTM-Attention</h3>
+            <p class="phase-description">
+              The core innovation phase deploys CryNet (~850K parameters), a bespoke deep learning
+              architecture built entirely from scratch in PyTorch. It processes log-mel spectrograms
+              through spatial, temporal, and attentive pathways.
+            </p>
+            <div class="phase-details">
+              <div class="detail-block">
+                <h4>🧠 Stage 1: CNN Extractor</h4>
+                <ul>
+                  <li>3 cascading Conv2D blocks (1→32→64→128)</li>
+                  <li>BatchNorm → GELU activation → MaxPool</li>
+                  <li>Squeeze-and-Excitation (SE) channel attention</li>
+                  <li>Residual skip connections for gradient flow</li>
+                </ul>
+              </div>
+              <div class="detail-block">
+                <h4>🔄 Stage 2: Temporal Encoder</h4>
+                <ul>
+                  <li>2-Layer Bidirectional LSTM</li>
+                  <li>Forward/Backward: 256→128 each</li>
+                  <li>256-dim concatenated output</li>
+                  <li>LayerNorm stabilisation</li>
+                </ul>
+              </div>
+              <div class="detail-block">
+                <h4>🎯 Stage 3: Self-Attention</h4>
+                <ul>
+                  <li>Multi-Head Self-Attention (4 heads, d_k = 64)</li>
+                  <li>Q, K, V linear projections</li>
+                  <li>Scaled dot-product attention</li>
+                  <li>Residual + LayerNorm</li>
+                </ul>
+              </div>
+              <div class="detail-block">
+                <h4>⚡ Training Methodology</h4>
+                <ul>
+                  <li>Focal Loss with class-balanced weighting</li>
+                  <li>SpecAugment regularisation (freq + time masking)</li>
+                  <li>OneCycleLR scheduler with warmup</li>
+                  <li>80 epochs, early stopping on validation loss</li>
+                </ul>
+              </div>
+            </div>
+            <div class="phase-results">
+              <div class="result-chip highlight">
+                <span class="result-label">Accuracy</span>
+                <span class="result-value">~25.8%</span>
+              </div>
+              <div class="result-chip highlight">
+                <span class="result-label">Macro F1</span>
+                <span class="result-value">~35.4%</span>
+              </div>
+            </div>
+          </div>
+          <div class="phase-visual">
+            <div class="arch-image-card">
+              <img src="assets/phase2_architecture.png" alt="Phase 2 Architecture — CryNet deep learning model" loading="lazy" />
+              <span class="arch-caption">Phase 2 — CryNet CNN-BiLSTM-Attention architecture</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 3 -->
+      <div id="phase-3" class="phase-panel">
+        <div class="phase-content">
+          <div class="phase-info">
+            <div class="phase-badge phase-badge-3">Phase 3</div>
+            <h3 class="phase-title">Hybrid Fusion Architecture</h3>
+            <p class="phase-description">
+              The fusion phase combines the strengths of both approaches — merging learned deep
+              representations from CryNet with handcrafted statistical features to create a
+              unified multi-stream classifier.
+            </p>
+            <div class="phase-details">
+              <div class="detail-block">
+                <h4>🔗 Dual-Stream Fusion</h4>
+                <ul>
+                  <li>Stream A: CryNet deep embeddings (256-dim)</li>
+                  <li>Stream B: Handcrafted features (106-dim)</li>
+                  <li>Concatenation-based late fusion</li>
+                  <li>Joint representation: 362-dim vector</li>
+                </ul>
+              </div>
+              <div class="detail-block">
+                <h4>🎛️ Fusion Classifier</h4>
+                <ul>
+                  <li>Fully-connected classifier head</li>
+                  <li>Batch normalisation + dropout (0.4)</li>
+                  <li>GELU activations throughout</li>
+                  <li>8-class softmax output</li>
+                </ul>
+              </div>
+              <div class="detail-block">
+                <h4>📈 Dynamic Ablation</h4>
+                <ul>
+                  <li>Systematic component removal testing</li>
+                  <li>Individual contribution measurement</li>
+                  <li>Optimal fusion weight discovery</li>
+                  <li>Performance vs complexity trade-off analysis</li>
+                </ul>
+              </div>
+              <div class="detail-block">
+                <h4>🏥 Clinical Integration</h4>
+                <ul>
+                  <li>Grad-CAM visual explanations</li>
+                  <li>Model interpretability dashboards</li>
+                  <li>Per-class confidence calibration</li>
+                  <li>Real-time inference pipeline</li>
+                </ul>
+              </div>
+            </div>
+            <div class="phase-results">
+              <div class="result-chip">
+                <span class="result-label">Fusion</span>
+                <span class="result-value">Deep + Handcrafted</span>
+              </div>
+              <div class="result-chip">
+                <span class="result-label">Vector</span>
+                <span class="result-value">362 dims</span>
+              </div>
+            </div>
+          </div>
+          <div class="phase-visual">
+            <div class="arch-image-card">
+              <img src="assets/architecture_diagram.png" alt="CryNet full architecture diagram with all stages" loading="lazy" />
+              <span class="arch-caption">Full CryNet Architecture — 5-stage pipeline</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Gallery -->
+      <div class="visual-gallery reveal">
+        <h3 class="gallery-title">Pipeline Visualisations</h3>
+        <div class="gallery-grid">
+          <div class="gallery-card" data-modal="modal-pipeline">
+            <img src="assets/pipeline.png" alt="Audio preprocessing pipeline" loading="lazy" />
+            <div class="gallery-overlay">
+              <span>Audio Pipeline</span>
+            </div>
+          </div>
+          <div class="gallery-card" data-modal="modal-specaugment">
+            <img src="assets/specaugment.png" alt="SpecAugment regularisation example" loading="lazy" />
+            <div class="gallery-overlay">
+              <span>SpecAugment</span>
+            </div>
+          </div>
+          <div class="gallery-card" data-modal="modal-spectrograms">
+            <img src="assets/per_class_spectrograms.png" alt="Per-class spectrogram comparison" loading="lazy" />
+            <div class="gallery-overlay">
+              <span>Per-Class Spectrograms</span>
+            </div>
+          </div>
+          <div class="gallery-card" data-modal="modal-comparison">
+            <img src="assets/model_comparison.png" alt="Model comparison and ablation study" loading="lazy" />
+            <div class="gallery-overlay">
+              <span>Model Comparison</span>
+            </div>
+          </div>
+          <div class="gallery-card" data-modal="modal-attention">
+            <img src="assets/attention_heads.png" alt="Multi-head attention visualisation" loading="lazy" />
+            <div class="gallery-overlay">
+              <span>Attention Heads</span>
+            </div>
+          </div>
+          <div class="gallery-card" data-modal="modal-roc">
+            <img src="assets/roc_pr_curves.png" alt="ROC and precision-recall curves" loading="lazy" />
+            <div class="gallery-overlay">
+              <span>ROC / PR Curves</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FUTURE SCOPE ===================== -->
+  <section id="future" class="section future-section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">🚀 Future Scope</span>
+        <h2 class="section-title">What's <span class="gradient-text">Next</span></h2>
+        <p class="section-subtitle">Advancing infant cry analysis through cutting-edge research and real-world deployment strategies.</p>
+      </div>
+      <div class="future-grid">
+        <div class="future-card reveal">
+          <div class="future-icon-wrapper">
+            <div class="future-icon">🏥</div>
+          </div>
+          <h3>Real-Time NICU Monitoring</h3>
+          <p>Deploy CryNet as an edge-inference model on NICU monitoring stations, enabling real-time cry classification and automated alert generation for critical states like belly pain and distress.</p>
+          <div class="future-tags">
+            <span class="tag">Edge AI</span>
+            <span class="tag">IoT</span>
+            <span class="tag">Healthcare</span>
+          </div>
+        </div>
+        <div class="future-card reveal">
+          <div class="future-icon-wrapper">
+            <div class="future-icon">📱</div>
+          </div>
+          <h3>Mobile Parent Assistant</h3>
+          <p>Build a cross-platform mobile application that parents can use to instantly decode their infant's cries. On-device inference using TensorFlow Lite / ONNX Runtime for privacy-preserving analysis.</p>
+          <div class="future-tags">
+            <span class="tag">Mobile</span>
+            <span class="tag">TFLite</span>
+            <span class="tag">Privacy</span>
+          </div>
+        </div>
+        <div class="future-card reveal">
+          <div class="future-icon-wrapper">
+            <div class="future-icon">🌐</div>
+          </div>
+          <h3>Multilingual Cry Corpus</h3>
+          <p>Expand the dataset to include infant cry recordings from diverse geographic and cultural backgrounds, reducing demographic bias and building a more generalisable model across populations.</p>
+          <div class="future-tags">
+            <span class="tag">Dataset</span>
+            <span class="tag">Diversity</span>
+            <span class="tag">Fairness</span>
+          </div>
+        </div>
+        <div class="future-card reveal">
+          <div class="future-icon-wrapper">
+            <div class="future-icon">🧬</div>
+          </div>
+          <h3>Transformer-Based Architecture</h3>
+          <p>Replace BiLSTM with a full Vision Transformer (ViT) or Audio Spectrogram Transformer (AST) backbone, leveraging pre-trained models and transfer learning for dramatically improved accuracy.</p>
+          <div class="future-tags">
+            <span class="tag">Transformer</span>
+            <span class="tag">ViT</span>
+            <span class="tag">Transfer Learning</span>
+          </div>
+        </div>
+        <div class="future-card reveal">
+          <div class="future-icon-wrapper">
+            <div class="future-icon">🔬</div>
+          </div>
+          <h3>Contrastive Pre-Training</h3>
+          <p>Implement self-supervised contrastive learning (SimCLR / BYOL) on unlabelled infant audio to learn robust representations before fine-tuning, dramatically reducing labelled data requirements.</p>
+          <div class="future-tags">
+            <span class="tag">Self-Supervised</span>
+            <span class="tag">SimCLR</span>
+            <span class="tag">Few-Shot</span>
+          </div>
+        </div>
+        <div class="future-card reveal">
+          <div class="future-icon-wrapper">
+            <div class="future-icon">📊</div>
+          </div>
+          <h3>Longitudinal Health Tracking</h3>
+          <p>Develop temporal models that track an individual infant's cry patterns over weeks and months, detecting developmental milestones, emerging health conditions, and treatment efficacy through longitudinal analysis.</p>
+          <div class="future-tags">
+            <span class="tag">Time-Series</span>
+            <span class="tag">Personalised</span>
+            <span class="tag">Tracking</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <span class="logo-icon">🍼</span>
+          <span class="logo-text">CryNet</span>
+          <p class="footer-tagline">Built for infant well-being.<br />Empowering diagnostic monitoring when early warning signs matter most.</p>
+        </div>
+        <div class="footer-links-group">
+          <h4>Project</h4>
+          <ul>
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#dataset">Dataset</a></li>
+            <li><a href="#architecture">Architecture</a></li>
+            <li><a href="#future">Future Scope</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-group">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="https://github.com/sainath2212/Infant-State-Recognition-System" target="_blank" rel="noopener">GitHub Repository</a></li>
+            <li><a href="https://pytorch.org/" target="_blank" rel="noopener">PyTorch</a></li>
+            <li><a href="https://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-group">
+          <h4>Tech Stack</h4>
+          <ul>
+            <li>Python 3.9+</li>
+            <li>PyTorch 2.0+</li>
+            <li>scikit-learn</li>
+            <li>librosa</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Infant State Recognition System. MIT License.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================== IMAGE MODAL ===================== -->
+  <div id="image-modal" class="image-modal">
+    <button class="modal-close" aria-label="Close modal">&times;</button>
+    <img id="modal-img" src="" alt="" />
+    <p id="modal-caption" class="modal-caption"></p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

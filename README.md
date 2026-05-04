@@ -54,7 +54,21 @@ The transition to a hybrid architecture yielded significant improvements in both
 
 ---
 
-## 4. Infrastructure & Production DevOps
+## 4. Hybrid Inference & Bias Mitigation Analysis
+
+### 4.1 Real-Time Inference Demonstration
+The figure below illustrates the unified inference pipeline of CryNetV2 during a diagnostic session. The system processes a 3-second audio sample through three parallel analytical lenses: temporal waveform analysis, perceptual frequency mapping (Mel), and adaptive frequency localisation (DST).
+
+![CryNetV2 Hybrid Inference Demo](models/prediction_demo.png)
+
+### 4.2 Addressing Majority Class Bias
+A significant challenge in infant cry datasets is the statistical dominance of the "Hungry" class. In traditional models, this leads to a "majority-class bias" where the model defaults to the most frequent label. 
+
+CryNetV2 successfully mitigates this through **Cost-Sensitive Learning** and **Focal Loss regularization**. As seen in the probability breakdown above, even when the "Hungry" class is present in the dataset, the Meta-Ensemble correctly identifies the nuanced acoustic markers of "Belly Pain"—the true physiological state—demonstrating that the model has learned discriminative features rather than simple class frequencies.
+
+---
+
+## 5. Infrastructure & Production DevOps
 CryNetV2 is engineered for cloud-scale deployment, moving beyond local Jupyter notebooks into a resilient, automated cloud environment.
 
 ### 4.1 Containerisation (Docker)
